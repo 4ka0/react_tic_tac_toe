@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 
+// Component for a single square.
+// Each square is a single button styled to look like a white square.
 function Square({ value, onSquareClick }) {
   return (
     <button className="square" onClick={ onSquareClick }>
@@ -12,10 +14,12 @@ function Square({ value, onSquareClick }) {
 
 export default function Board() {
 
+  // As an initial value, an array is created having nine elements each set to null.
   const [squares, setSquares] = useState( Array(9).fill( null ) );
 
+  // Event handler for when a square is slicked.
   function handleClick(i) {
-    const nextSquares = squares.slice();
+    const nextSquares = squares.slice();  // Creates copy of the squares array.
     nextSquares[i] = "X";
     setSquares(nextSquares);
   }
@@ -23,6 +27,8 @@ export default function Board() {
   return (
     <>
       <div className="board-row">
+        {/* The value in each Square is an elem index in the squares array.
+            The same elem index is passed to the click event handler. */}
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
         <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
