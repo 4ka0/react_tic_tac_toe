@@ -1,56 +1,45 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-
-// Component for a single square.
-// Each square is a single button styled to look like a white square.
 function Square({ value, onSquareClick }) {
   return (
-    <button className="square" onClick={ onSquareClick }>
-      { value }
+    <button className="square" onClick={onSquareClick}>
+      {value}
     </button>
   );
 }
 
+function Board({ xIsNext, squares, onPlay }) {
 
-export default function Board() {
-
-  // State boolean for determing whether O or X is next.
-  const [xIsNext, setXIsNext] = useState(true);
-
-  // As an initial value, an array is created having nine elements each set to null.
-  const [squares, setSquares] = useState( Array(9).fill( null ) );
-
-  // Event handler for when a square is slicked.
+  // Event handler to handle a click event when a square is clicked.
   function handleClick(i) {
-    // If the elem is not null, it is already O/X, and thus don't continue.
-    if (squares[i]) {
+    // Does not continue if there is a winner.
+    if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    const nextSquares = squares.slice();  // Creates copy of the squares array.
+    // JS slice() is used to create a copy of the current squares array.
+    const nextSquares = squares.slice();
     if (xIsNext) {
-      nextSquares[i] = "X";
+      nextSquares[i] = 'X';
     } else {
-      nextSquares[i] = "O";
+      nextSquares[i] = 'O';
     }
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+    // Links to the handlePlay event handler in the Game component.
+    onPlay(nextSquares);
   }
 
-  // Check to see if there is a winner and display status.
+  // To display the next player or the winner.
   const winner = calculateWinner(squares);
   let status;
   if (winner) {
-    status = "Winner: " + winner;
+    status = 'Winner: ' + winner;
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
   return (
     <>
       <div className="status">{status}</div>
       <div className="board-row">
-        {/* The value in each Square is an elem index in the squares array.
-            The same elem index is passed to the click event handler. */}
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
         <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
@@ -69,6 +58,34 @@ export default function Board() {
   );
 }
 
+export default function Game() {
+  // To decided whether O or X is next.
+  const [xIsNext, setXIsNext] = useState(true);
+  // For saving the history of the game.
+  // Each move is represented by an array of nine values.
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  // The current state of the game (the last elem in the history.)
+  const currentSquares = history[history.length - 1];
+
+  // Event handler for the current move represented by nextSquares.
+  function handlePlay(nextSquares) {
+    // Spread operator is used to add the entire content of the current history.
+    setHistory([...history, nextSquares]);
+    // The opposite of the current value is set for the next move.
+    setXIsNext(!xIsNext);
+  }
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <ol>{/*TODO*/}</ol>
+      </div>
+    </div>
+  );
+}
 
 function calculateWinner(squares) {
   const lines = [
@@ -79,7 +96,7 @@ function calculateWinner(squares) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
